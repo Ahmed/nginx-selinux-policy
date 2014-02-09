@@ -1,0 +1,134 @@
+policy_module(nginx_fe_local, 0.1.4)
+# Author: Jani Heinonen / Profit Consulting Oy
+# #         email: jani.heinonen@profitconsulting.fi
+# #         phone: +358 50 313 4292
+#
+
+########################################
+#
+# requires
+#
+
+require {
+    type NGINX_t;
+    type NGINX_etc_rw_t;
+    type NGINX_var_t;
+    type NGINX_exec_t;
+    type NGINX_usr_t;
+    type etc_t;
+    type fs_t;
+    type httpd_sys_content_t;
+    type initrc_var_run_t;
+    type initrc_t;
+    type locale_t;
+    type net_conf_t;
+    type proc_t;
+    type sysctl_kernel_t;
+    type urandom_device_t;
+    type usr_t;
+    type var_run_t;
+    type httpd_sys_content_t;
+    type http_cache_port_t;
+    type port_t;
+    #type phpfpm_t;
+    type tmp_t;
+    type cert_t;
+    type anon_inodefs_t;
+    class file { read getattr open write create unlink rename execute_no_trans };
+    class dir { write add_name create open write remove_name };
+    class lnk_file read;
+    class filesystem getattr;
+    class process { signal setrlimit };
+    class tcp_socket { name_bind listen shutdown setopt bind create ioctl accept getattr connect getopt listen };
+    class lnk_file read;
+    class capability { setuid net_bind_service setgid sys_resource };
+    class sock_file { write create unlink };
+    class unix_stream_socket connectto;
+}
+
+
+########################################
+#
+# Declarations
+#
+
+type NGINX_t;
+type NGINX_exec_t;
+init_daemon_domain(NGINX_t, NGINX_exec_t)
+
+permissive NGINX_t;
+
+type NGINX_initrc_exec_t;
+init_script_file(NGINX_initrc_exec_t)
+
+type NGINX_etc_rw_t;
+files_type(NGINX_etc_rw_t)
+
+type NGINX_log_t;
+logging_log_file(NGINX_log_t)
+
+type NGINX_var_t;
+files_type(NGINX_var_t)
+
+type NGINX_usr_t;
+files_type(NGINX_usr_t)
+
+########################################
+#
+# NGINX local policy
+#
+manage_dirs_pattern(NGINX_t, NGINX_etc_rw_t, NGINX_etc_rw_t)
+manage_files_pattern(NGINX_t, NGINX_etc_rw_t, NGINX_etc_rw_t)
+files_etc_filetrans(NGINX_t, NGINX_etc_rw_t, { dir file })
+
+manage_dirs_pattern(NGINX_t, NGINX_log_t, NGINX_log_t)
+manage_files_pattern(NGINX_t, NGINX_log_t, NGINX_log_t)
+logging_log_filetrans(NGINX_t, NGINX_log_t, { dir file })
+
+manage_dirs_pattern(NGINX_t, NGINX_var_t, NGINX_var_t)
+manage_files_pattern(NGINX_t, NGINX_var_t, NGINX_var_t)
+files_var_filetrans(NGINX_t, NGINX_var_t, { dir file })
+
+manage_dirs_pattern(NGINX_t, NGINX_usr_t, NGINX_usr_t)
+manage_files_pattern(NGINX_t, NGINX_usr_t, NGINX_usr_t)
+files_usr_filetrans(NGINX_t, NGINX_usr_t, { dir file })
+
+allow NGINX_t etc_t:file { read getattr open };
+allow NGINX_t fs_t:filesystem getattr;
+allow NGINX_t httpd_sys_content_t:file { read getattr open };
+allow NGINX_t initrc_var_run_t:file { read write open };
+allow NGINX_t locale_t:file { read getattr open };
+allow NGINX_t net_conf_t:file { read getattr open };
+allow NGINX_t proc_t:file { read open };
+allow NGINX_t self:capability { setuid setgid dac_override };
+allow NGINX_t self:process { setrlimit signal };
+allow NGINX_t self:tcp_socket { shutdown setopt bind create ioctl accept getattr connect getopt listen };
+allow NGINX_t self:capability { setuid net_bind_service setgid sys_resource };
+allow NGINX_t sysctl_kernel_t:dir search;
+allow NGINX_t sysctl_kernel_t:file read;
+allow NGINX_t urandom_device_t:chr_file { read getattr open };
+allow NGINX_t var_run_t:dir { write add_name remove_name };
+allow NGINX_t var_run_t:file { read write create open unlink rename };
+allow NGINX_t NGINX_exec_t:file execute_no_trans;
+allow NGINX_t httpd_sys_content_t:dir read;
+allow NGINX_t httpd_sys_content_t:lnk_file read;
+allow NGINX_t http_cache_port_t:tcp_socket name_bind;
+allow NGINX_t port_t:tcp_socket name_bind;
+allow NGINX_t initrc_t:tcp_socket { getopt getattr accept setopt shutdown };
+#allow NGINX_t phpfpm_t:unix_stream_socket connectto;
+allow NGINX_t tmp_t:sock_file write;
+allow NGINX_t anon_inodefs_t:file ioctl;
+allow NGINX_t cert_t:dir search;
+allow NGINX_t cert_t:file { read getattr open };
+allow NGINX_t httpd_sys_content_t:lnk_file read;
+allow NGINX_t self:capability chown;
+
+corenet_tcp_sendrecv_generic_if(NGINX_t)
+corenet_tcp_sendrecv_generic_node(NGINX_t)
+corenet_tcp_sendrecv_all_ports(NGINX_t)
+corenet_tcp_bind_generic_node(NGINX_t)
+corenet_tcp_bind_http_port(NGINX_t)
+corenet_tcp_connect_http_cache_port(NGINX_t)
+corenet_tcp_connect_generic_port(NGINX_t)
+
+

@@ -1,0 +1,17 @@
+# Author: Jani Heinonen / Profit Consulting Oy
+#         email: jani.heinonen@profitconsulting.fi
+#         phone: +358 50 313 4292
+/etc/rc.d/init.d/nginx  --  gen_context(system_u:object_r:NGINX_initrc_exec_t,s0)
+
+/usr/sbin/nginx     --  gen_context(system_u:object_r:NGINX_exec_t,s0)
+
+/etc/init.d/nginx   --  gen_context(system_u:object_r:NGINX_etc_rw_t,s0)
+
+/etc/nginx(/.*)?        gen_context(system_u:object_r:NGINX_etc_rw_t,s0)
+
+/var/cache/nginx(/.*)?    gen_context(system_u:object_r:NGINX_var_t,s0)
+
+/var/log/nginx(/.*)?    gen_context(system_u:object_r:NGINX_log_t,s0)
+
+/usr/share/nginx(/.*)?  gen_context(system_u:object_r:NGINX_usr_t,s0)
+

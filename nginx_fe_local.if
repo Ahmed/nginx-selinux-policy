@@ -1,0 +1,344 @@
+# Author: Jani Heinonen / Profit Consulting Oy
+#         email: jani.heinonen@profitconsulting.fi
+#         phone: +358 50 313 4292
+#
+## <summary>policy for NGINX</summary>
+
+
+########################################
+## <summary>
+##	Transition to NGINX.
+## </summary>
+## <param name="domain">
+## <summary>
+##	Domain allowed to transition.
+## </summary>
+## </param>
+#
+interface(`NGINX_domtrans',`
+	gen_require(`
+		type NGINX_t, NGINX_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	domtrans_pattern($1, NGINX_exec_t, NGINX_t)
+')
+
+
+########################################
+## <summary>
+##	Execute NGINX server in the NGINX domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`NGINX_initrc_domtrans',`
+	gen_require(`
+		type NGINX_initrc_exec_t;
+	')
+
+	init_labeled_script_domtrans($1, NGINX_initrc_exec_t)
+')
+
+
+########################################
+## <summary>
+##	Search NGINX conf directories.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`NGINX_search_conf',`
+	gen_require(`
+		type NGINX_etc_rw_t;
+	')
+
+	allow $1 NGINX_etc_rw_t:dir search_dir_perms;
+	files_search_etc($1)
+')
+
+########################################
+## <summary>
+##	Read NGINX conf files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`NGINX_read_conf_files',`
+	gen_require(`
+		type NGINX_etc_rw_t;
+	')
+
+	allow $1 NGINX_etc_rw_t:file read_file_perms;
+	allow $1 NGINX_etc_rw_t:dir list_dir_perms;
+	files_search_etc($1)
+')
+
+########################################
+## <summary>
+##	Read NGINX's log files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`NGINX_read_log',`
+	gen_require(`
+		type NGINX_log_t;
+	')
+
+	logging_search_logs($1)
+	read_files_pattern($1, NGINX_log_t, NGINX_log_t)
+')
+
+########################################
+## <summary>
+##	Append to NGINX log files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`NGINX_append_log',`
+	gen_require(`
+		type NGINX_log_t;
+	')
+
+	logging_search_logs($1)
+	append_files_pattern($1, NGINX_log_t, NGINX_log_t)
+')
+
+########################################
+## <summary>
+##	Manage NGINX log files
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`NGINX_manage_log',`
+	gen_require(`
+		type NGINX_log_t;
+	')
+
+	logging_search_logs($1)
+	manage_dirs_pattern($1, NGINX_log_t, NGINX_log_t)
+	manage_files_pattern($1, NGINX_log_t, NGINX_log_t)
+	manage_lnk_files_pattern($1, NGINX_log_t, NGINX_log_t)
+')
+
+########################################
+## <summary>
+##	Search NGINX lib directories.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`NGINX_search_var',`
+	gen_require(`
+		type NGINX_var_t;
+	')
+
+	allow $1 NGINX_var_t:dir search_dir_perms;
+	files_search_var($1)
+')
+
+########################################
+## <summary>
+##	Read NGINX lib files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`NGINX_read_var_files',`
+	gen_require(`
+		type NGINX_var_t;
+	')
+
+	files_search_var($1)
+	read_files_pattern($1, NGINX_var_t, NGINX_var_t)
+')
+
+########################################
+## <summary>
+##	Manage NGINX lib files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`NGINX_manage_var_files',`
+	gen_require(`
+		type NGINX_var_t;
+	')
+
+	files_search_var($1)
+	manage_files_pattern($1, NGINX_var_t, NGINX_var_t)
+')
+
+########################################
+## <summary>
+##	Manage NGINX lib directories.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`NGINX_manage_var_dirs',`
+	gen_require(`
+		type NGINX_var_t;
+	')
+
+	files_search_var($1)
+	manage_dirs_pattern($1, NGINX_var_t, NGINX_var_t)
+')
+
+########################################
+## <summary> 
+##  Search NGINX usr directories
+## </summary>
+## <param name="domain">
+##  <summary>
+##  Domain allowed access.
+##  </summary>
+## </param>
+#
+interface(`NGINX_search_usr',`
+    gen_require (`
+        type NGINX_usr_t;
+    ')
+
+    allow $1 NGINX_usr_t:dir search_dir_perms;
+    files_search_usr($1)
+') 
+
+#######################################
+## <summary> 
+##  read NGINX usr directories
+## </summary>
+## <param name="domain">
+##  <summary>
+##  Domain allowed access.
+##  </summary>
+## </param>
+#
+interface(`NGINX_read_usr_files',`
+    gen_require(`
+        type NGINX_usr_t;
+    ')
+
+    files_search_usr($1)
+    read_files_pattern($1, NGINX_usr_t, NGINX_usr_t)
+')
+
+#######################################
+## <summary> 
+##  Manage NGINX usr files
+## </summary>
+## <param name="domain">
+##  <summary>
+##  Domain allowed access.
+##  </summary>
+## </param>
+#
+interface(`NGINX_manage_usr_files',`
+    gen_require(`
+        type NGINX_usr_t;
+    ')
+
+    files_search_usr($1)
+    manage_files_pattern($1, NGINX_usr_t, NGINX_usr_t)
+')
+
+#######################################
+## <summary> 
+##  Manage NGINX usr directories
+## </summary>
+## <param name="domain">
+##  <summary>
+##  Domain allowed access.
+##  </summary>
+## </param>
+#
+interface(`NGINX_manage_usr_dirs',`
+    gen_require(`
+        type NGINX_usr_t;
+    ')
+
+    files_search_usr($1)
+    manage_dirs_pattern($1, NGINX_usr_t, NGINX_usr_t)
+')
+
+########################################
+## <summary>
+##	All of the rules required to administrate
+##	an NGINX environment
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	Role allowed access.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`NGINX_admin',`
+	gen_require(`
+	type NGINX_t;
+	type NGINX_initrc_exec_t;
+	type NGINX_etc_rw_t;
+	type NGINX_log_t;
+	type NGINX_var_lib_t;
+    	type NGINX_usr_t;
+	')
+
+	allow $1 NGINX_t:process { ptrace signal_perms };
+	ps_process_pattern($1, NGINX_t)
+
+	NGINX_initrc_domtrans($1)
+	domain_system_change_exemption($1)
+	role_transition $2 NGINX_initrc_exec_t system_r;
+	allow $2 system_r;
+
+	files_search_etc($1)
+	admin_pattern($1, NGINX_etc_rw_t)
+
+	logging_search_logs($1)
+	admin_pattern($1, NGINX_log_t)
+
+	files_search_var_lib($1)
+	admin_pattern($1, NGINX_var_lib_t)
+
+    files_search_usr($1)
+    admin_pattern($1, NGINX_usr_t)
+')

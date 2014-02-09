@@ -1,0 +1,5 @@
+ifdef(`nginx_fe_local_per_role_template',`
+')
+ifdef(`nginx_fe_local_per_userdomain_template',`
+errprint(`Warning: per_userdomain_templates have been renamed to per_role_templates (nginx_fe_local_per_userdomain_template)'__endline__)
+')
